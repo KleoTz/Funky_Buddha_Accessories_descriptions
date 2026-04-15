@@ -58,8 +58,8 @@ if st.button("Δημιουργία CSV & Ενημέρωση Λίστας"):
             
             # 4. Ενημέρωση ημερομηνίας στη Main Λίστα
             current_time = datetime.now().strftime("%d/%m/%Y %H:%M")
-            df_master.loc[df_master['STYLE NR.'].isin(found_styles), 'processed_date'] = current_time
-            conn.update(data=df_master)
+            #df_master.loc[df_master['STYLE NR.'].isin(found_styles), 'processed_date'] = current_time
+            #conn.update(data=df_master)
 
             st.success(f"Επεξεργάστηκαν {len(found_styles)} κωδικοί!")
 

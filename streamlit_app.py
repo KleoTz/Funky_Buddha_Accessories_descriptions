@@ -57,10 +57,21 @@ if st.button("Δημιουργία CSV & Ενημέρωση Λίστας"):
             csv_string = "\ufeff" + "\n".join(csv_lines)
             
             # 4. Ενημέρωση ημερομηνίας στη Main Λίστα
-            current_time = datetime.now().strftime("%d/%m/%Y %H:%M")
-            df_master.loc[df_master['STYLE NR.'].isin(found_styles), 'processed_date'] = current_time
-            conn.update(data=df_master)
+            #current_time = datetime.now().strftime("%d/%m/%Y %H:%M")
+            #df_master.loc[df_master['STYLE NR.'].isin(found_styles), 'processed_date'] = current_time
+            #conn.update(data=df_master)
 
+            current_time = datetime.now().strftime("%d/%m/%Y %H:%M")
+            # Ενημερώνουμε τη στήλη processed_date για τα STYLE NR που βρέθηκαν
+            df_master.loc[df_master['STYLE NR.'].isin(found_styles), 'processed_date'] = current_time
+
+            # Ενημέρωση του Google Sheet
+            # Προσθέτουμε το spreadsheet URL και το worksheet όνομα ρητά για να μη χαθεί η σύνδεση
+            conn.update(
+                spreadsheet="https://docs.google.com/spreadsheets/d/1rP1cqvVWQsslZhJrfVxRDarHptFRCCCwkc06TPJdmDc/edit?usp=sharing",
+                worksheet="Sheet1",
+                data=df_master
+            )
             st.success(f"Επεξεργάστηκαν {len(found_styles)} κωδικοί!")
 
             # 5. Download Button

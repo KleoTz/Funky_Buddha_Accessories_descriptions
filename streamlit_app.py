@@ -89,23 +89,30 @@ if st.button("🚀 Δημιουργία CSV & Ενημέρωση Λίστας"):
             try:
                 current_time = datetime.now().strftime("%d/%m/%Y %H:%M")
                 
-                # Βρίσκουμε τους αριθμούς γραμμών στο Sheet (gspread index ξεκινά από 2 λόγω header)
-                # Θα κάνουμε update μόνο τη στήλη processed_date
+                # Λήψη των τίτλων των στηλών
                 header = worksheet.row_values(1)
-                if 'processed_date' in header:
-                    col_idx = header.index('processed_date') + 1
+                header = [h.strip() for h in header] # καθαρισμός κενών
+                
+                if 'processed_date' in header and 'STYLE NR.' in header:
+                    col_date_idx = header.index('processed_date') + 1
+                    col_style_idx = header.index('STYLE NR.') + 1
                     
-                    # Update για κάθε style που βρέθηκε
+                    # Παίρνουμε όλη τη στήλη των Style NR για να ψάξουμε πιο γρήγορα
+                    styles_in_sheet = worksheet.col_values(col_style_idx)
+                    
+                    updates = []
                     for style in found_styles:
-                        # Βρίσκουμε όλες τις γραμμές που έχουν αυτό το Style NR.
-                        cell_list = worksheet.findall(style, in_column=header.index('STYLE NR.')+1)
-                        for cell in cell_list:
-                            worksheet.update_cell(cell.row, col_idx, current_time)
+                        # Ψάχνουμε σε ποιες γραμμές υπάρχει ο κωδικός (ξεκινώντας από τη 2η γραμμή)
+                        for row_idx, value in enumerate(styles_in_sheet, start=1):
+                            if str(value).strip() == str(style).strip():
+                                # Προετοιμασία του update (row, col, value)
+                                worksheet.update_cell(row_idx, col_date_idx, current_time)
                 
                 st.success(f"✅ Επεξεργάστηκαν {len(found_styles)} κωδικοί και ενημερώθηκε η λίστα!")
             except Exception as update_err:
-                st.warning(f"Το CSV δημιουργήθηκε, αλλά η λίστα δεν ενημερώθηκε: {update_err}")
+                st.warning(f"⚠️ Το CSV δημιουργήθηκε, αλλά η λίστα δεν ενημερώθηκε: {update_err}")
 
+            
             # 6. Download Button
             st.download_button(
                 label="📥 Λήψη CSV για Magento",
